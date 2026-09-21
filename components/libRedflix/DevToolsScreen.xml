@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="DevToolsScreen" extends="Group"
+	xsi:noNamespaceSchemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
+	<script type="text/brightscript"
+		uri="pkg:/components/libRedflix/DevToolsScreen.brs" />
+	<script type="text/brightscript"
+		uri="pkg:/components/redfast/consts.brs" />
+	<script type="text/brightscript"
+		uri="pkg:/components/libRedflix/DevSettings.brs" />
+
+	<interface>
+		<field id="closed" type="bool" alwaysNotify="true" value="false" />
+	</interface>
+
+	<children>
+		<Rectangle id="bg" color="#101418" width="1920" height="1080"
+			translation="[0,0]">
+			<Label id="title" text="Dev Tools" color="#ffffff"
+				translation="[60,20]" />
+			<Label id="hint" text="BACK to close  /  UP-DOWN to navigate  /  OK to activate"
+				color="#808080" translation="[60,55]" />
+
+			<Label id="sectionA" text="SDK Config" color="#5fb0ff"
+				translation="[60,100]" />
+			<CtaButton id="devAppId" translation="[60,135]" width="900"
+				height="44" bgColor="#0b2737" textColor="#c0c0c0"
+				textHighlightedColor="#ffffff" bgHighlightedColor="#1a4a63" />
+			<CtaButton id="devUserId" translation="[60,185]" width="900"
+				height="44" bgColor="#0b2737" textColor="#c0c0c0"
+				textHighlightedColor="#ffffff" bgHighlightedColor="#1a4a63" />
+			<CtaButton id="devEnv" translation="[60,235]" width="900"
+				height="44" bgColor="#0b2737" textColor="#c0c0c0"
+				textHighlightedColor="#ffffff" bgHighlightedColor="#1a4a63" />
+			<CtaButton id="devSave"
+				translation="[60,285]" width="440" height="44"
+				bgColor="#0b2737" textColor="#c0c0c0"
+				textHighlightedColor="#ffffff" bgHighlightedColor="#1a4a63" />
+			<CtaButton id="devClear"
+				translation="[520,285]" width="440" height="44"
+				bgColor="#0b2737" textColor="#c0c0c0"
+				textHighlightedColor="#ffffff" bgHighlightedColor="#1a4a63" />
+
+			<Label id="sectionB" text="Prompts" color="#5fb0ff"
+				translation="[60,345]" />
+			<CtaButton id="devRefresh"
+				translation="[60,380]" width="440" height="44"
+				bgColor="#0b2737" textColor="#c0c0c0"
+				textHighlightedColor="#ffffff" bgHighlightedColor="#1a4a63" />
+			<Group id="promptListRoot" translation="[60,430]" />
+
+			<Label id="sectionC" text="Simulate / Preview" color="#5fb0ff"
+				translation="[60,760]" />
+			<CtaButton id="devShowById"
+				translation="[60,795]" width="900" height="44"
+				bgColor="#0b2737" textColor="#c0c0c0"
+				textHighlightedColor="#ffffff" bgHighlightedColor="#1a4a63" />
+			<CtaButton id="devInlinePreview"
+				translation="[60,845]" width="900" height="44"
+				bgColor="#0b2737" textColor="#c0c0c0"
+				textHighlightedColor="#ffffff" bgHighlightedColor="#1a4a63" />
+			<CtaButton id="devFireScreen"
+				translation="[60,895]" width="440" height="44"
+				bgColor="#0b2737" textColor="#c0c0c0"
+				textHighlightedColor="#ffffff" bgHighlightedColor="#1a4a63" />
+			<CtaButton id="devFireButton"
+				translation="[520,895]" width="440" height="44"
+				bgColor="#0b2737" textColor="#c0c0c0"
+				textHighlightedColor="#ffffff" bgHighlightedColor="#1a4a63" />
+			<CtaButton id="devBlankScreen"
+				translation="[60,945]" width="900" height="44"
+				bgColor="#0b2737" textColor="#c0c0c0"
+				textHighlightedColor="#ffffff" bgHighlightedColor="#1a4a63" />
+
+			<Label id="status" text="" color="#5fd97f" wrap="true"
+				width="1800" translation="[60,1005]" />
+
+			<Rectangle id="promptRenderRoot" translation="[0,0]"
+				width="1920" height="1080" color="#00000000" />
+		</Rectangle>
+	</children>
+</component>

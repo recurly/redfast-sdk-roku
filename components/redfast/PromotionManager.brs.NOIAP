@@ -16,6 +16,7 @@ sub init()
     m.modalParamsDictionary = {}
     m.promotionEnabled = true
     m.privacyConsentCategories = invalid
+    m.environment = "production"
 end sub
 
 function callApi(observer as string) as object
@@ -23,6 +24,7 @@ function callApi(observer as string) as object
     action.appId = m.appId
     action.userId = m.userId
     action.deviceType = m.deviceType
+    action.environment = m.environment
     if m.anonymousUserId <> invalid and m.anonymousUserId <> ""
         action.anonymous_user_id = m.anonymousUserId
     end if
@@ -42,9 +44,29 @@ sub initPromotion(params as object)
     m.userId = params.userId
     m.anonymousUserId = params.anonymousUserId
     m.deviceType = "roku_os"
+    if params.environment <> invalid and params.environment <> ""
+        m.environment = params.environment
+    end if
     m.fonts = { ctaFont: params.ctaFont, timeoutFont: params.timeoutFont }
     if params.deviceType <> invalid
         m.deviceType = params.deviceType
+    end if
+    updatePing()
+end sub
+
+' Devtools-oriented reconfiguration: applies any combination of appId/userId/
+' environment overrides and restarts the ping loop, without a full re-init.
+sub applyOverrides(params as object)
+    m.actions = invalid
+    m.initialPing = true
+    if params.appId <> invalid and params.appId <> ""
+        m.appId = params.appId
+    end if
+    if params.userId <> invalid and params.userId <> ""
+        m.userId = params.userId
+    end if
+    if params.environment <> invalid and params.environment <> ""
+        m.environment = params.environment
     end if
     updatePing()
 end sub
@@ -516,6 +538,14 @@ end sub
 
 function getUserId() as object
     return m.userid
+end function
+
+function getAppId() as object
+    return m.appId
+end function
+
+function getEnvironment() as object
+    return m.environment
 end function
 
 sub resetGoal()

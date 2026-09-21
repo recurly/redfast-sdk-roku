@@ -23,6 +23,9 @@
 		<function name="setUserId" />
 		<function name="setAnonymousUserId" />
 		<function name="getUserId" />
+		<function name="getAppId" />
+		<function name="getEnvironment" />
+		<function name="applyOverrides" />
 		<function name="onScreenChanged" />
 		<function name="onButtonClicked" />
 		<function name="onInlineClicked" />

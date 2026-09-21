@@ -8,11 +8,14 @@ sub init()
     timeoutF = CreateObject("roSGNode", "Font")
     timeoutF.uri = "pkg:/fonts/AllProDisplayC-Regular.ttf"
     timeoutF.size = 20
-    m.promoMgr.callFunc("initPromotion", { 
-        appId: "6b233605-b981-4d6d-8b45-efa7fc402388", '"2b40fc8a-75fe-436e-afa7-e2879392566c", 
-        userId: "123", 
-        anonymousUserId: "anon-123-roku", 
-        ctaFont: ctaF, 
+
+    devSettings = LoadDevSettings()
+    m.promoMgr.callFunc("initPromotion", {
+        appId: EffectiveAppId(devSettings),
+        userId: EffectiveUserId(devSettings),
+        anonymousUserId: "anon-123-roku",
+        environment: devSettings.environment,
+        ctaFont: ctaF,
         timeoutFont: timeoutF })
     m.promoMgr.observeField("result", "onInitialized")
 end sub
