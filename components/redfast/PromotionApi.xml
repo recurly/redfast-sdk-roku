@@ -9,6 +9,7 @@
 		<field id="userId" type="string" value="" />
 		<field id="deviceType" type="string" value="" />
 		<field id="anonymous_user_id" type="string" value="" />
+		<field id="environment" type="string" value="production" />
 		<function name="fireEvent" />
 	</interface>
 </component>

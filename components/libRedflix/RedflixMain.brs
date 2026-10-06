@@ -38,6 +38,35 @@ sub init()
     m.promolist = m.top.findNode("promolist")
 
     m.inline = invalid
+    m.devToolsScreen = invalid
+end sub
+
+sub openDevTools()
+    if m.devToolsScreen <> invalid then return
+    stack = m.top.GetScene().findNode("sceneStack")
+    m.top.visible = false
+    ' Stop reacting to promoMgr.result while DevTools owns the screen -
+    ' otherwise onPromptResult keeps firing for prompts fired from DevTools
+    ' and steals focus onto our own (hidden) home RowList.
+    m.promoMgr.unobserveField("result")
+    m.devToolsScreen = createObject("roSGNode", "DevToolsScreen")
+    m.devToolsScreen.observeField("closed", "onDevToolsClosed")
+    stack.appendChild(m.devToolsScreen)
+    m.devToolsScreen.setFocus(true)
+end sub
+
+sub onDevToolsClosed()
+    m.devToolsScreen.unobserveField("closed")
+    stack = m.top.GetScene().findNode("sceneStack")
+    stack.removeChild(m.devToolsScreen)
+    m.devToolsScreen = invalid
+    m.top.visible = true
+    m.promoMgr.observeField("result", "onPromptResult")
+    if m.inline <> invalid
+        m.inline.setFocus(true)
+    else
+        m.home.setFocus(true)
+    end if
 end sub
 
 sub onContentComplete()
@@ -239,6 +268,11 @@ end sub
 
 function onKeyEvent(key as string, pressed as boolean) as boolean
     if pressed
+        if key = "options" and m.devToolsScreen = invalid
+            openDevTools()
+            return true
+        end if
+
         if m.promo.visible = false
             if key = "left" or key = "right" or key = "up"
                 if key = "left"

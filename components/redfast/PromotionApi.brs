@@ -17,6 +17,9 @@ end sub
 sub fireEventImpl()
     event = m.params.event
     baseUrl = m.ApiProdBaseUrl
+    if m.top.environment = "staging"
+        baseUrl = m.ApiBaseUrl
+    end if
     if event = "ping" or event = "click" or event = "traitping"
         baseUrl += "ping"
     else if event = "impression"
