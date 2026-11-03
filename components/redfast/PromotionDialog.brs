@@ -17,6 +17,7 @@ sub init()
     m.countDown = m.top.findNode("countDown")
     m.result = PromotionResult()
     m.initialGrabFocus = false
+    m.interacted = false
     m.localStorage = CreateLocalStorage()
 end sub
 
@@ -319,15 +320,24 @@ sub onTimer()
     end if
 end sub
 
+' Hide every CTA (and the timer) once any button is clicked, matching web behavior
+sub hideCtaButtons()
+    m.interacted = true
+    m.countDown.visible = false
+    btnNodes = [m.rf_retention_confirm_button_text, m.rf_retention_accept2_button_text, m.rf_retention_cancel_button_text]
+    for each btn in btnNodes
+        btn.visible = false
+        btn.enabled = false
+    end for
+    m.top.setFocus(true)
+end sub
+
 sub onAccept()
     if (m.timer <> invalid)
         m.timer.unobserveField("fire")
         m.timer.control = "stop"
     end if
-    m.countDown.visible = false
-    m.rf_retention_cancel_button_text.visible = false
-    m.rf_retention_confirm_button_text.setFocus(true)
-    m.rf_retention_confirm_button_text.enabled = false
+    hideCtaButtons()
 
     callApi({ event: "goal", pathId: m.currentPath.id, actionGroupId: m.currentPath.action_group_id })
     m.localStorage.createNewOverlayKey(m.currentPath.id, m.currentPath.actions.rf_settings_accept_interval)
@@ -344,6 +354,7 @@ sub onAccept2()
         m.timer.unobserveField("fire")
         m.timer.control = "stop"
     end if
+    hideCtaButtons()
     callApi({ event: "goal", pathId: m.currentPath.id, actionGroupId: m.currentPath.action_group_id, accept_type: "accept2" })
     m.localStorage.createNewOverlayKey(m.currentPath.id, m.currentPath.actions.rf_settings_accept_interval)
     m.top.result = preparePromptResult({
@@ -359,6 +370,7 @@ sub onDecline()
         m.timer.unobserveField("fire")
         m.timer.control = "stop"
     end if
+    hideCtaButtons()
     callApi({ event: "dismiss", pathId: m.currentPath.id, actionGroupId: m.currentPath.action_group_id, reason: "decline" })
     m.localStorage.createNewOverlayKey(m.currentPath.id, m.currentPath.actions.rf_settings_decline_interval)
     m.top.result = preparePromptResult({
@@ -451,6 +463,13 @@ end sub
 function onKeyEvent(key as string, pressed as boolean) as boolean
     if not pressed
         return false
+    end if
+
+    ' After a CTA click the prompt is closing - swallow the keys the prompt
+    ' owns so hidden buttons can't regain focus and back can't fire a second
+    ' dismiss; any other key keeps bubbling to the app as before
+    if m.interacted
+        return key = "left" or key = "right" or key = "up" or key = "down" or key = "back" or key = "OK"
     end if
 
     if key = "left" or key = "right" or key = "up" or key = "down"
