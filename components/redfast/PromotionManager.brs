@@ -18,9 +18,17 @@ sub init()
     m.promotionEnabled = true
     m.privacyConsentCategories = invalid
     m.environment = "production"
+    m.apiTasks = []
 end sub
 
 function callApi(observer as string) as object
+    keep = []
+    for each task in m.apiTasks
+        if task <> invalid and task.state = "run"
+            keep.push(task)
+        end if
+    end for
+    m.apiTasks = keep
     action = createObject("RoSGNode", "PromotionApi")
     action.appId = m.appId
     action.userId = m.userId
@@ -35,6 +43,7 @@ function callApi(observer as string) as object
     if observer <> ""
         action.observeField("state", observer)
     end if
+    m.apiTasks.push(action)
     return action
 end function
 
@@ -668,7 +677,7 @@ function getMetas() as object
 end function
 
 function getVersion() as string
-    return "1.0.49"
+    return "1.0.50"
 end function
 
 function matchWildCharStrings(trigger as string, name as string) as boolean

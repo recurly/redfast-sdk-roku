@@ -53,7 +53,8 @@ sub fireEventImpl()
     if event = "click"
         urlParams += "type=" + m.params.type + "&event=" + connection.Escape(m.params.eventName) + "&id=" + m.params.id + "&value=" + connection.Escape(m.params.value)
     else if event = "customTrack"
-        urlParams += "type=custom&custom_field_id=" + connection.Escape(m.params.customFieldId) + "&id=" + m.top.appId
+        date = CreateObject("roDateTime")
+        urlParams += "type=custom&custom_field_id=" + connection.Escape(m.params.customFieldId) + "&id=" + m.top.appId + "&send_ts=" + date.AsSeconds().toStr()
     else if event = "resetGoal"
         urlParams += "client_reset_complete=true&id=" + m.top.appId
     else if event = "holdout" or event = "impression" or event = "dismiss" or event = "goal"
@@ -100,8 +101,11 @@ sub fireEventImpl()
     if connection.AsyncGetToString()
         result = wait(waitingTime, port)
         if type(result) = "roUrlEvent"
+            statusCode = result.GetResponseCode()
+            if event <> "ping" and event <> "holdout"
+                print "Rf: " + event + " -> " + statusCode.toStr()
+            end if
             if event = "ping" or event = "holdout"
-                statusCode = result.GetResponseCode()
                 if statusCode = 200
                     jsonStr = result.GetString()
                     if jsonStr <> invalid and jsonStr.Len() > 0
@@ -123,6 +127,9 @@ sub fireEventImpl()
                     m.top.content = invalid
                 end if
             end if
+        else
+            print "Rf: " + event + " no response within " + waitingTime.toStr() + "ms"
+            connection.AsyncCancel()
         end if
     else
         print "AsyncGetToString failed"
