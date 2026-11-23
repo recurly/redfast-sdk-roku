@@ -15,8 +15,8 @@
 		<field id="result" type="assocarray" />
 		<field id="font" type="node" />
 		<field id="lastError" type="string" />
-		<function name="initPrompts" />
-		<function name="enablePrompts" />
+		<function name="initPrompt" />
+		<function name="enablePrompt" />
 		<function name="setPrivacyConsentCategories" />
 		<function name="getPrivacyConsentCategories" />
 		<function name="setUserId" />

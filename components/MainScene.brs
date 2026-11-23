@@ -10,7 +10,7 @@ sub init()
     timeoutF.size = 20
 
     devSettings = LoadDevSettings()
-    m.promoMgr.callFunc("initPrompts", {
+    m.promoMgr.callFunc("initPrompt", {
         appId: EffectiveAppId(devSettings),
         userId: EffectiveUserId(devSettings),
         anonymousUserId: "anon-123-roku",

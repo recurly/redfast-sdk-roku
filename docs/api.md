@@ -20,7 +20,7 @@ Starting with v2.0.0 the SDK components and files use the Recurly Engage naming 
 - The SDK zip still ships a deprecated `PromotionManager` component that wraps the new `PromptManager`, so existing scene XMLs and `initPromotion`/`enablePromotion` calls continue to work.
 - Prompt suppression/holdout state saved on the device under the legacy `Redfast` registry section is migrated automatically to the new section on first launch.
 
-To fully migrate an existing channel: delete the old `components/redfast/` folder, unzip the new SDK, replace `<PromotionManager id="promoMgr" />` with `<PromptManager id="promoMgr" />`, and rename `initPromotion`/`enablePromotion` calls to `initPrompts`/`enablePrompts`. If your channel includes `consts.brs` directly, update the script path from `pkg:/components/redfast/consts.brs` to `pkg:/components/engage/consts.brs`.
+To fully migrate an existing channel: delete the old `components/redfast/` folder, unzip the new SDK, replace `<PromotionManager id="promoMgr" />` with `<PromptManager id="promoMgr" />`, and rename `initPromotion`/`enablePromotion` calls to `initPrompt`/`enablePrompt`. If your channel includes `consts.brs` directly, update the script path from `pkg:/components/redfast/consts.brs` to `pkg:/components/engage/consts.brs`.
 
 ## Initialize SDK
 1. Initialize the SDK within the main scene XML (initial screen) file.
@@ -47,7 +47,7 @@ sub init()
   print m.promoMgr.callFunc("getVersion") ' lookup current SDK version
   m.promoMgr.observeField("result", "onInitialized")
   ' appId argument is required, all others are optional
-  m.promoMgr.callFunc("initPrompts", {appId: "[YOUR APP ID]", userId: "[USER ID]", annonymousUserId: "[ANON USER ID]", ctaFont: ctaF, timeoutFont: timeoutF})
+  m.promoMgr.callFunc("initPrompt", {appId: "[YOUR APP ID]", userId: "[USER ID]", annonymousUserId: "[ANON USER ID]", ctaFont: ctaF, timeoutFont: timeoutF})
 end sub
 
 sub onInitialized()
@@ -326,10 +326,10 @@ There may be cases in which the Recurly Engage SDK should be temporarily disable
 
 ```brightscript 
 // To disable
-m.promoMgr.callFunc("enablePrompts", {enabled: false})
+m.promoMgr.callFunc("enablePrompt", {enabled: false})
 
 // To re-enable
-m.promoMgr.callFunc("enablePrompts", {enabled: true})
+m.promoMgr.callFunc("enablePrompt", {enabled: true})
 ```
 
 ## Debug view

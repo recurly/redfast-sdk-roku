@@ -22,7 +22,7 @@ This repo contains two distinct pieces:
 Entry point. Creates `roSGScreen`, instantiates `MainScene`, runs the main event loop.
 
 ### components/MainScene (.brs/.xml)
-Root scene (extends `Scene`). Declares `PromptManager` (id=`promoMgr`) and a `sceneStack` Group as children. On `init`, calls `initPrompts` with appId/userId/fonts, then observes `result` — once the SDK signals initialized, appends `RedflixMain` into `sceneStack`.
+Root scene (extends `Scene`). Declares `PromptManager` (id=`promoMgr`) and a `sceneStack` Group as children. On `init`, calls `initPrompt` with appId/userId/fonts, then observes `result` — once the SDK signals initialized, appends `RedflixMain` into `sceneStack`.
 
 This is the **integration point**: the scene owns `PromptManager` so all child components can find it via `GetScene().findNode("promoMgr")`.
 
@@ -49,7 +49,7 @@ Background `Task` nodes for fetching content (run on separate threads).
 ### Core
 
 - **PromptManager.brs/.xml** — Central SDK controller (extends `Group`). Manages the full promotion lifecycle:
-  - `initPrompts(params)` — Initializes with appId, userId, anonymousUserId, fonts, deviceType.
+  - `initPrompt(params)` — Initializes with appId, userId, anonymousUserId, fonts, deviceType.
   - Ping loop (`updatePing`) — Periodic server pings to fetch promotion paths/configs with ETag caching and exponential backoff.
   - `onScreenChanged(params)` — Trigger-based prompt display on screen navigation.
   - `onButtonClicked(params)` — Trigger-based prompt display on button click events.

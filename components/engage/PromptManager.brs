@@ -47,7 +47,7 @@ function callApi(observer as string) as object
     return action
 end function
 
-sub initPrompts(params as object)
+sub initPrompt(params as object)
     m.actions = invalid
     m.initialPing = true
     m.appId = params.appId
@@ -87,20 +87,20 @@ sub ping(params as object)
     m.ping.callFunc("fireEvent", params)
 end sub
 
-sub enablePrompts(params as object)
+sub enablePrompt(params as object)
     if Type(params.enabled) = "roBoolean"
         m.promotionEnabled = params.enabled
     end if
 end sub
 
-' Deprecated: use initPrompts instead. Kept for channels integrated with SDK 1.x (PromotionManager component).
+' Deprecated: use initPrompt instead. Kept for channels integrated with SDK 1.x (PromotionManager component).
 sub initPromotion(params as object)
-    initPrompts(params)
+    initPrompt(params)
 end sub
 
-' Deprecated: use enablePrompts instead. Kept for channels integrated with SDK 1.x (PromotionManager component).
+' Deprecated: use enablePrompt instead. Kept for channels integrated with SDK 1.x (PromotionManager component).
 sub enablePromotion(params as object)
-    enablePrompts(params)
+    enablePrompt(params)
 end sub
 
 sub setPrivacyConsentCategories(params as object)

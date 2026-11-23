@@ -31,7 +31,7 @@ This document teaches AI assistants how to help developers integrate the Recurly
 
 ## Step 2 — Initialize the SDK in the root Scene BRS
 
-In the scene's `init()`, find the manager, call `initPrompts`, and observe `result` to know when the SDK is ready. Only load your first screen **after** the SDK signals initialized — this ensures prompts are available on the very first screen.
+In the scene's `init()`, find the manager, call `initPrompt`, and observe `result` to know when the SDK is ready. Only load your first screen **after** the SDK signals initialized — this ensures prompts are available on the very first screen.
 
 ```brightscript
 ' components/MainScene.brs
@@ -48,7 +48,7 @@ sub init()
     timeoutF.size = 20
 
     m.promoMgr.observeField("result", "onInitialized")
-    m.promoMgr.callFunc("initPrompts", {
+    m.promoMgr.callFunc("initPrompt", {
         appId: "YOUR-APP-ID",
         userId: "user-123",
         anonymousUserId: "anon-uuid",
@@ -69,7 +69,7 @@ end sub
 
 Key points:
 - `unobserveField("result")` in `onInitialized` is essential — it prevents the scene-level handler from firing on every subsequent prompt interaction.
-- `appId` is the only required argument to `initPrompts`; all others are optional.
+- `appId` is the only required argument to `initPrompt`; all others are optional.
 
 ---
 
@@ -286,8 +286,8 @@ Prompts for the updated user become available within a few seconds after this ca
 ## Step 11 — Enable / disable the SDK
 
 ```brightscript
-m.promoMgr.callFunc("enablePrompts", {enabled: false})  ' pause
-m.promoMgr.callFunc("enablePrompts", {enabled: true})   ' resume
+m.promoMgr.callFunc("enablePrompt", {enabled: false})  ' pause
+m.promoMgr.callFunc("enablePrompt", {enabled: true})   ' resume
 ```
 
 ---
