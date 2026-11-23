@@ -11,9 +11,9 @@ function CreateLocalStorage() as Object
     return m
 end function
 
-' SDK 1.x stored suppression/holdout state in the "Redfast" registry section.
-' Copy any pending keys over to "RecurlyEngage" so merchant users keep their
-' prompt state across the SDK upgrade, then clear the legacy section.
+' SDK 1.x stored suppression/holdout state in a legacy registry section.
+' Copy any pending keys over to the current section so merchant users keep
+' their prompt state across the SDK upgrade, then clear the legacy section.
 sub MigrateLegacyRegistry(newSec as Object)
     legacySec = CreateObject("roRegistrySection", "Redfast")
     legacyKeys = legacySec.GetKeyList()
