@@ -4,7 +4,7 @@
 	<script type="text/brightscript"
 		uri="pkg:/components/libRedflix/DevToolsScreen.brs" />
 	<script type="text/brightscript"
-		uri="pkg:/components/redfast/consts.brs" />
+		uri="pkg:/components/engage/consts.brs" />
 	<script type="text/brightscript"
 		uri="pkg:/components/libRedflix/DevSettings.brs" />
 

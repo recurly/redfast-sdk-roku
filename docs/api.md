@@ -10,15 +10,23 @@ Automatic event handling: Built-in support for prompt display, button clicks, an
 Flexible triggers: Activate prompts by screen name or button click to fit your application flow.
 
 ## Install the SDK
-Download the latest Roku SDK (v1.0.36) with Roku Pay support here and without Roku Pay support here. A demo app featuring an example integration can be provided by request.
+Download the latest Roku SDK (v2.0.0) with Roku Pay support here and without Roku Pay support here. A demo app featuring an example integration can be provided by request.
 
-To build a project using the RedFast SDK for Roku, your project must have been built with the Scenegraph SDK. Unzip the SDK into the app components directory.
+To build a project using the Recurly Engage SDK for Roku, your project must have been built with the Scenegraph SDK. Unzip the SDK into the app components directory.
+
+## Upgrading from 1.x
+Starting with v2.0.0 the SDK components and files use the Recurly Engage naming (`components/engage/`, `PromptManager`, `PromptApi`, ...). Channels integrated with SDK 1.x keep working without code changes:
+
+- The SDK zip still ships a deprecated `PromotionManager` component that wraps the new `PromptManager`, so existing scene XMLs and `initPromotion`/`enablePromotion` calls continue to work.
+- Prompt suppression/holdout state saved on the device under the legacy `Redfast` registry section is migrated automatically to the new section on first launch.
+
+To fully migrate an existing channel: delete the old `components/redfast/` folder, unzip the new SDK, replace `<PromotionManager id="promoMgr" />` with `<PromptManager id="promoMgr" />`, and rename `initPromotion`/`enablePromotion` calls to `initPrompts`/`enablePrompts`. If your channel includes `consts.brs` directly, update the script path from `pkg:/components/redfast/consts.brs` to `pkg:/components/engage/consts.brs`.
 
 ## Initialize SDK
 1. Initialize the SDK within the main scene XML (initial screen) file.
 
 ```xml
- < PromotionManager id="promoMgr" />
+ < PromptManager id="promoMgr" />
 ```
 
 2. Within the main scene BrightScript (.brs) file, add the following lines into the sub init() function and specify the values for the appId and userId. The userId may be changed later on.
@@ -39,7 +47,7 @@ sub init()
   print m.promoMgr.callFunc("getVersion") ' lookup current SDK version
   m.promoMgr.observeField("result", "onInitialized")
   ' appId argument is required, all others are optional
-  m.promoMgr.callFunc("initPromotion", {appId: "[YOUR APP ID]", userId: "[USER ID]", annonymousUserId: "[ANON USER ID]", ctaFont: ctaF, timeoutFont: timeoutF})
+  m.promoMgr.callFunc("initPrompts", {appId: "[YOUR APP ID]", userId: "[USER ID]", annonymousUserId: "[ANON USER ID]", ctaFont: ctaF, timeoutFont: timeoutF})
 end sub
 
 sub onInitialized()
@@ -67,7 +75,7 @@ m.promoMgr.callFunc("setAnonymousUserId", {userId: "[new anon user id]"})
 ```
 
 ## Set privacy consent categories
-Prompts may be configured in the Redfast console to require one or more privacy consent categories. You may restrict which prompts are eligible to be shown by specifying the categories the user has consented to (e.g. after they interact with a cookie/privacy consent banner). A prompt is only considered eligible when its configured consent categories are an exact match (same set) of the categories you specify here.
+Prompts may be configured in the Recurly Engage console to require one or more privacy consent categories. You may restrict which prompts are eligible to be shown by specifying the categories the user has consented to (e.g. after they interact with a cookie/privacy consent banner). A prompt is only considered eligible when its configured consent categories are an exact match (same set) of the categories you specify here.
 
 If `setPrivacyConsentCategories` is never called, consent filtering is disabled and all prompts remain eligible regardless of their configured consent categories.
 
@@ -98,7 +106,7 @@ categories = m.promoMgr.callFunc("getPrivacyConsentCategories")
 | Bottom banner | 13 |
 
 ## Trigger modal via screen name
-You may utilize the Redfast SDK to display a modal on a specified screen. If the prompt also requires a button click, the trigger will not occur until the associated onButtonClicked function is called.
+You may utilize the Recurly Engage SDK to display a modal on a specified screen. If the prompt also requires a button click, the trigger will not occur until the associated onButtonClicked function is called.
 
 Add the following line in the screen init function:
 
@@ -274,14 +282,14 @@ end sub
 ```
 
 ## Send usage tracking event
-Your app can report custom tracker events through the SDK. If configured as a tracker within Pulse, these custom events can be used to target prompts at specific sets of users. The custom tracker must first be created within the Redfast console so that the customFieldId value may be retrieved.
+Your app can report custom tracker events through the SDK. If configured as a tracker within Pulse, these custom events can be used to target prompts at specific sets of users. The custom tracker must first be created within the Recurly Engage console so that the customFieldId value may be retrieved.
 
 ```brightscript
 m.promoMgr.callFunc("customTrack", {customFieldId: "my-usage-event"})
 ```
 
 ## Deep link to a media asset
-Invoke the Roku app deep linking functionality by specifying the mediaType and contentId for the prompt in the Redfast console. When the user invokes the CTA on the prompt, you may utilize these parameters to send the user to a specific media asset within the app. The following is an example on how to invoke deep linking after the user invokes the call to action.
+Invoke the Roku app deep linking functionality by specifying the mediaType and contentId for the prompt in the Recurly Engage console. When the user invokes the CTA on the prompt, you may utilize these parameters to send the user to a specific media asset within the app. The following is an example on how to invoke deep linking after the user invokes the call to action.
 
 ```brightscript
 sub onPromotionEvent()
@@ -293,7 +301,7 @@ end sub
 ```
 
 ## Access device metadata
-Device key-value pair metadata can be added to an Prompt via the Redfast console. The app will receive these values per the examples below. These values may be used to perform an action that is not the typical media asset deep link, like sending the user to a registration screen.
+Device key-value pair metadata can be added to an Prompt via the Recurly Engage console. The app will receive these values per the examples below. These values may be used to perform an action that is not the typical media asset deep link, like sending the user to a registration screen.
 
 ## Popup
 When a popup is dismissed by either an Accept, Decline, or Timeout action by the user, the custom metadata will be saved in the extra.meta field.
@@ -314,14 +322,14 @@ end sub
 ```
 
 ## Disable SDK
-There may be cases in which the Redfast SDK should be temporarily disabled for the current session. When disabled, popups are not triggered, and API communication between the SDK and Redfast servers are paused.
+There may be cases in which the Recurly Engage SDK should be temporarily disabled for the current session. When disabled, popups are not triggered, and API communication between the SDK and Recurly Engage servers are paused.
 
 ```brightscript 
 // To disable
-m.promoMgr.callFunc("enablePromotion", {enabled: false})
+m.promoMgr.callFunc("enablePrompts", {enabled: false})
 
 // To re-enable
-m.promoMgr.callFunc("enablePromotion", {enabled: true})
+m.promoMgr.callFunc("enablePrompts", {enabled: true})
 ```
 
 ## Debug view

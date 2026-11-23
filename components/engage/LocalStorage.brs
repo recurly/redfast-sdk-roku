@@ -1,6 +1,7 @@
 function CreateLocalStorage() as Object
     m = {}
-    m.sec = CreateObject("roRegistrySection", "Redfast")
+    m.sec = CreateObject("roRegistrySection", "RecurlyEngage")
+    MigrateLegacyRegistry(m.sec)
     m.createNewOverlayKey = createNewOverlayKey
     m.deleteOverylayKey = deleteOverylayKey
     m.isOverlayEnabled = isOverlayEnabled
@@ -9,6 +10,26 @@ function CreateLocalStorage() as Object
     m.createHoldOutKey = createHoldOutKey
     return m
 end function
+
+' SDK 1.x stored suppression/holdout state in the "Redfast" registry section.
+' Copy any pending keys over to "RecurlyEngage" so merchant users keep their
+' prompt state across the SDK upgrade, then clear the legacy section.
+sub MigrateLegacyRegistry(newSec as Object)
+    legacySec = CreateObject("roRegistrySection", "Redfast")
+    legacyKeys = legacySec.GetKeyList()
+    if legacyKeys.Count() = 0
+        return
+    end if
+    for each key in legacyKeys
+        newSec.Write(key, legacySec.Read(key))
+    end for
+    newSec.Flush()
+    for each key in legacyKeys
+        legacySec.Delete(key)
+    end for
+    legacySec.Flush()
+    print "Re: migrated " + legacyKeys.Count().toStr() + " registry keys from legacy section"
+end sub
 
 sub createNewOverlayKey(overlayPathId as String, disabledInterval as String)
     date = CreateObject("roDateTime")
@@ -20,13 +41,13 @@ sub createNewOverlayKey(overlayPathId as String, disabledInterval as String)
     else
         value += Str(Val(disabledInterval, 10) * 60) 'minutes to seconds
     end if
-    print "Rf: promos " + overlayPathId + " is disabled for " + value.toStr() + " seconds"
+    print "Re: promos " + overlayPathId + " is disabled for " + value.toStr() + " seconds"
     m.sec.Write(overlayPathId, value)
     m.sec.Flush()
 end sub
 
 sub deleteOverylayKey(overlayPathId as String)
-    print "Rf: promos " + overlayPathId + " is deleted"
+    print "Re: promos " + overlayPathId + " is deleted"
     m.sec.Delete(overlayPathId)
     m.sec.Flush()
 end sub
@@ -41,7 +62,7 @@ function isOverlayEnabled(overlayPathId as String) as Boolean
             date = CreateObject("roDateTime")
             now = date.AsSeconds()
             if interval = -1 or interval = -2 or (start + interval > now)
-                print "Rf: promos " + overlayPathId + " is blocked due to " +  value + " and now " + now.toStr()
+                print "Re: promos " + overlayPathId + " is blocked due to " +  value + " and now " + now.toStr()
                 return false
             end if
         end if
@@ -72,21 +93,21 @@ sub reset(visitOnly as boolean)
     end for
     m.sec.Flush()
     if visitOnly
-        print "Rf: reset VISIT promos, total " + visitCount.toStr()
+        print "Re: reset VISIT promos, total " + visitCount.toStr()
     else
-        print "Rf: reset all promos, total " + keyCount.toStr()
+        print "Re: reset all promos, total " + keyCount.toStr()
     end if
 end sub
 
 sub createHoldOutKey(holdoutPathId as String)
-    print "Rf: holdout key created for " + holdoutPathId
+    print "Re: holdout key created for " + holdoutPathId
     m.sec.Write(holdoutPathId + "_holdout", "true")
     m.sec.Flush()
 end sub
 
 function hasHoldOutPresented(holdoutPathId as String) as boolean
     if m.sec.Exists(holdoutPathId + "_holdout")
-        print "Rf: holdout disabled for " + holdoutPathId
+        print "Re: holdout disabled for " + holdoutPathId
         return true
     end if
     return false

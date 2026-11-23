@@ -1,25 +1,25 @@
-# Redfast Roku SDK — Integration Skill
+# Recurly Engage Roku SDK — Integration Skill
 
-This document teaches AI assistants how to help developers integrate the Redfast SDK into a Roku SceneGraph channel. It is grounded in the live demo integration in `components/libRedflix/` and the API reference in `docs/api.md`.
+This document teaches AI assistants how to help developers integrate the Recurly Engage SDK into a Roku SceneGraph channel. It is grounded in the live demo integration in `components/libRedflix/` and the API reference in `docs/api.md`.
 
 ---
 
 ## Architecture in one sentence
 
-`PromotionManager` lives on the root `Scene` node. Every screen in the app finds it by id (`GetScene().findNode("promoMgr")`), observes its `result` field for callbacks, and calls its functions via `callFunc`.
+`PromptManager` lives on the root `Scene` node. Every screen in the app finds it by id (`GetScene().findNode("promoMgr")`), observes its `result` field for callbacks, and calls its functions via `callFunc`.
 
 ---
 
-## Step 1 — Place PromotionManager in the root Scene XML
+## Step 1 — Place PromptManager in the root Scene XML
 
-`PromotionManager` must be a direct child of the root `Scene` component so that any descendant screen can locate it with `GetScene().findNode("promoMgr")`.
+`PromptManager` must be a direct child of the root `Scene` component so that any descendant screen can locate it with `GetScene().findNode("promoMgr")`.
 
 ```xml
 <!-- components/MainScene.xml -->
 <component name="MainScene" extends="Scene">
     <script type="text/brightscript" uri="pkg:/components/MainScene.brs" />
     <children>
-        <PromotionManager id="promoMgr" />
+        <PromptManager id="promoMgr" />
         <Group id="sceneStack" />
     </children>
 </component>
@@ -31,7 +31,7 @@ This document teaches AI assistants how to help developers integrate the Redfast
 
 ## Step 2 — Initialize the SDK in the root Scene BRS
 
-In the scene's `init()`, find the manager, call `initPromotion`, and observe `result` to know when the SDK is ready. Only load your first screen **after** the SDK signals initialized — this ensures prompts are available on the very first screen.
+In the scene's `init()`, find the manager, call `initPrompts`, and observe `result` to know when the SDK is ready. Only load your first screen **after** the SDK signals initialized — this ensures prompts are available on the very first screen.
 
 ```brightscript
 ' components/MainScene.brs
@@ -48,7 +48,7 @@ sub init()
     timeoutF.size = 20
 
     m.promoMgr.observeField("result", "onInitialized")
-    m.promoMgr.callFunc("initPromotion", {
+    m.promoMgr.callFunc("initPrompts", {
         appId: "YOUR-APP-ID",
         userId: "user-123",
         anonymousUserId: "anon-uuid",
@@ -69,7 +69,7 @@ end sub
 
 Key points:
 - `unobserveField("result")` in `onInitialized` is essential — it prevents the scene-level handler from firing on every subsequent prompt interaction.
-- `appId` is the only required argument to `initPromotion`; all others are optional.
+- `appId` is the only required argument to `initPrompts`; all others are optional.
 
 ---
 
@@ -93,7 +93,7 @@ Register `observeField` **before** calling any SDK function so you never miss a 
 
 ## Step 4 — Track screen navigation
 
-Call `onScreenChanged` whenever the user enters a screen. Pass `root` (the visible root node of the current screen) and a `screenName` string that matches trigger configuration in the Redfast console.
+Call `onScreenChanged` whenever the user enters a screen. Pass `root` (the visible root node of the current screen) and a `screenName` string that matches trigger configuration in the Recurly Engage console.
 
 ```brightscript
 m.promoMgr.callFunc("onScreenChanged", {root: m.viewRoot, screenName: "home"})
@@ -117,7 +117,7 @@ end sub
 
 > See: [components/libRedflix/RedflixMain.brs:151](components/libRedflix/RedflixMain.brs#L151)
 
-`id` is an optional button identifier that maps to trigger rules in the Redfast console. Omit it if you only need screen-level triggers.
+`id` is an optional button identifier that maps to trigger rules in the Recurly Engage console. Omit it if you only need screen-level triggers.
 
 Note: a prior `onScreenChanged` call is required if the prompt trigger is scoped to both a screen name **and** a button click.
 
@@ -149,7 +149,7 @@ end if
 
 > See: [components/libRedflix/RedflixMain.brs:51-57](components/libRedflix/RedflixMain.brs#L51-L57)
 
-`showInline` returns the created `PromotionInline` node, or `invalid` if no eligible prompt exists. Always null-check before calling methods on it or setting focus.
+`showInline` returns the created `PromptInline` node, or `invalid` if no eligible prompt exists. Always null-check before calling methods on it or setting focus.
 
 ---
 
@@ -268,7 +268,7 @@ m.promoMgr.callFunc("customTrack", {customFieldId: "home"})
 
 > See: [components/libRedflix/RedflixMain.brs:117](components/libRedflix/RedflixMain.brs#L117)
 
-The `customFieldId` must match a tracker configured in the Redfast console.
+The `customFieldId` must match a tracker configured in the Recurly Engage console.
 
 ---
 
@@ -286,8 +286,8 @@ Prompts for the updated user become available within a few seconds after this ca
 ## Step 11 — Enable / disable the SDK
 
 ```brightscript
-m.promoMgr.callFunc("enablePromotion", {enabled: false})  ' pause
-m.promoMgr.callFunc("enablePromotion", {enabled: true})   ' resume
+m.promoMgr.callFunc("enablePrompts", {enabled: false})  ' pause
+m.promoMgr.callFunc("enablePrompts", {enabled: true})   ' resume
 ```
 
 ---
@@ -351,9 +351,9 @@ Press `*` on the remote to open the debug overlay (set userId, reset goals).
 
 | File | Purpose |
 |---|---|
-| [components/MainScene.xml](components/MainScene.xml) | Root scene — where `PromotionManager` is declared |
+| [components/MainScene.xml](components/MainScene.xml) | Root scene — where `PromptManager` is declared |
 | [components/MainScene.brs](components/MainScene.brs) | SDK initialization and first-screen bootstrap |
 | [components/libRedflix/RedflixMain.brs](components/libRedflix/RedflixMain.brs) | Full integration example: inline, modal, interstitial, IAP |
-| [components/redfast/consts.brs](components/redfast/consts.brs) | Result codes, path types, zone types, utilities |
-| [components/redfast/PromotionManager.brs](components/redfast/PromotionManager.brs) | SDK core — all callable functions |
+| [components/engage/consts.brs](components/engage/consts.brs) | Result codes, path types, zone types, utilities |
+| [components/engage/PromptManager.brs](components/engage/PromptManager.brs) | SDK core — all callable functions |
 | [docs/api.md](docs/api.md) | Official API reference |

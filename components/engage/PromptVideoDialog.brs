@@ -1,19 +1,19 @@
-' Copyright (C) 2023 Redfast Inc - All Rights Reserved
+' Copyright (C) 2023 Recurly, Inc - All Rights Reserved
 '
 ' Must not be copied and/or distributed without the express
-' permission of Redfast Inc
+' permission of Recurly, Inc
 
 sub init()
     m.rf_settings_bg_image = m.top.findNode("rf_settings_bg_image")
     m.rf_settings_video = m.top.findNode("rf_settings_video")
     m.rf_retention_confirm_button_text = m.top.findNode("rf_retention_confirm_button_text")
     m.rf_retention_cancel_button_text = m.top.findNode("rf_retention_cancel_button_text")
-    m.result = PromotionResult()
+    m.result = PromptResult()
     m.localStorage = CreateLocalStorage()
 end sub
 
 function callApi(params)
-    action = createObject("RoSGNode", "PromotionApi")
+    action = createObject("RoSGNode", "PromptApi")
     action.appId = m.appId
     action.userId = m.userId
     action.deviceType = m.deviceType

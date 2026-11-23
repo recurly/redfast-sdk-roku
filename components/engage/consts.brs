@@ -1,9 +1,9 @@
-' Copyright (C) 2023 Redfast Inc - All Rights Reserved
+' Copyright (C) 2023 Recurly, Inc - All Rights Reserved
 '
 ' Must not be copied and/or distributed without the express
-' permission of Redfast Inc
+' permission of Recurly, Inc
 
-function PromotionResult() as object
+function PromptResult() as object
     m = {}
     ' Success codes
     m.ok = 1
@@ -142,7 +142,7 @@ function preparePromptResult(resultObj as object, path as object) as object
         resultObj.promptMeta.promptExperimentID = path.experiment_id
         resultObj.promptMeta.promptType = path.path_type
 
-        allCodes = PromotionResult()
+        allCodes = PromptResult()
         if resultObj.code = allCodes.button1
             resultObj.promptMeta.buttonLabel = path.actions.rf_retention_button1_text
         else if resultObj.code = allCodes.button2

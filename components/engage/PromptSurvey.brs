@@ -1,7 +1,7 @@
-' Copyright (C) 2023 Redfast Inc - All Rights Reserved
+' Copyright (C) 2023 Recurly, Inc - All Rights Reserved
 '
 ' Must not be copied and/or distributed without the express
-' permission of Redfast Inc
+' permission of Recurly, Inc
 
 sub init()
     m.rf_settings_bg_image = m.top.findNode("rf_settings_bg_image")
@@ -16,13 +16,13 @@ sub init()
     m.currentButton = 0
     m.totalButtons = 1
     m.countDown = m.top.findNode("countDown")
-    m.result = PromotionResult()
+    m.result = PromptResult()
     m.initialGrabFocus = false
     m.localStorage = CreateLocalStorage()
 end sub
 
 function callApi(params)
-    action = createObject("RoSGNode", "PromotionApi")
+    action = createObject("RoSGNode", "PromptApi")
     action.appId = m.appId
     action.userId = m.userId
     action.deviceType = m.deviceType

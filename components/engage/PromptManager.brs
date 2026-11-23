@@ -1,12 +1,13 @@
-' Copyright (C) 2023 Redfast Inc - All Rights Reserved
+' Copyright (C) 2023 Recurly, Inc - All Rights Reserved
 '
 ' Must not be copied and/or distributed without the express
-' permission of Redfast Inc
+' permission of Recurly, Inc
 
 sub init()
     m.currentScreenName = ""
-    m.allResults = PromotionResult()
+    m.allResults = PromptResult()
     m.allErrors = ErrorMessage()
+    m.billing = m.top.FindNode("billing")
     m.pingRetry = 60
     m.lastEtag = invalid
     m.lastGoodPingInterval = 60
@@ -28,7 +29,7 @@ function callApi(observer as string) as object
         end if
     end for
     m.apiTasks = keep
-    action = createObject("RoSGNode", "PromotionApi")
+    action = createObject("RoSGNode", "PromptApi")
     action.appId = m.appId
     action.userId = m.userId
     action.deviceType = m.deviceType
@@ -46,7 +47,7 @@ function callApi(observer as string) as object
     return action
 end function
 
-sub initPromotion(params as object)
+sub initPrompts(params as object)
     m.actions = invalid
     m.initialPing = true
     m.appId = params.appId
@@ -86,10 +87,20 @@ sub ping(params as object)
     m.ping.callFunc("fireEvent", params)
 end sub
 
-sub enablePromotion(params as object)
+sub enablePrompts(params as object)
     if Type(params.enabled) = "roBoolean"
         m.promotionEnabled = params.enabled
     end if
+end sub
+
+' Deprecated: use initPrompts instead. Kept for channels integrated with SDK 1.x (PromotionManager component).
+sub initPromotion(params as object)
+    initPrompts(params)
+end sub
+
+' Deprecated: use enablePrompts instead. Kept for channels integrated with SDK 1.x (PromotionManager component).
+sub enablePromotion(params as object)
+    enablePrompts(params)
 end sub
 
 sub setPrivacyConsentCategories(params as object)
@@ -132,7 +143,7 @@ sub updatePing()
         m.ping = callApi("onUpdatePing")
         m.ping.callFunc("fireEvent", { event: "ping", name: m.currentScreenName, etag: m.lastEtag })
     else
-        print "Rf: promotion is temporary disabled; idle timer"
+        print "Re: promotion is temporary disabled; idle timer"
         m.timer = createObject("RoSGNode", "Timer")
         m.timer.duration = m.pingRetry
         m.timer.observeField("fire", "updatePing")
@@ -180,7 +191,7 @@ sub onUpdatePing()
         else
             interval = scheduleNextPingInterval()
         end if
-        print "Rf: next ping after " + interval.toStr() + " seconds"
+        print "Re: next ping after " + interval.toStr() + " seconds"
         m.timer = createObject("RoSGNode", "Timer")
         m.timer.duration = interval
         m.timer.observeField("fire", "updatePing")
@@ -204,6 +215,7 @@ function getPath(actions as object, clickId as string) as object
 
     for ii = 0 to paths.count() - 1
         path = paths[ii]
+        matchedTrigger = invalid
         for jj = 0 to path.triggers.count() - 1
             trigger = path.triggers[jj]
             urlPath = trigger.url_path
@@ -217,21 +229,23 @@ function getPath(actions as object, clickId as string) as object
             end if
             if checkTriggerScreenName
                 if (trigger.click_id = invalid or trigger.click_id = "") and clickId = ""
-                    if not matchPrivacyConsentCategories(path)
-                        return invalid
-                    end if
-                    path.delay_seconds = trigger.delay_seconds
-                    return path
+                    matchedTrigger = trigger
+                    exit for
                 end if
                 if trigger.click_id = clickId
-                    if not matchPrivacyConsentCategories(path)
-                        return invalid
-                    end if
-                    path.delay_seconds = trigger.delay_seconds
-                    return path
+                    matchedTrigger = trigger
+                    exit for
                 end if
             end if
         end for
+
+        ' A path whose trigger matches but whose consent categories don't
+        ' isn't a dead end - keep looking at the remaining candidate paths
+        ' instead of aborting the whole lookup.
+        if matchedTrigger <> invalid and matchPrivacyConsentCategories(path)
+            path.delay_seconds = matchedTrigger.delay_seconds
+            return path
+        end if
     end for
     return invalid
 end function
@@ -324,8 +338,15 @@ sub onModalDismissed()
 
     m.modalResult = m.modal.result
     m.modal = invalid
+    prod_id = m.modalParam.path.actions.rf_settings_roku_product_id
+    prod_op = m.modalParam.path.actions.rf_settings_roku_product_operation
+    if prod_id <> invalid and prod_op <> invalid and prod_id <> "" and prod_op <> ""
+        m.billing.ObserveField("catalog", "inAppUpdate1")
+        m.billing.command = "getCatalog"
+    else
+        m.top.result = m.modalResult
+    end if
     m.modalParamsDictionary = {}
-    m.top.result = m.modalResult
     m.screenChangeDelay = invalid
 
     closedPath = m.modalParam.path
@@ -379,12 +400,58 @@ sub onModalDismissed()
     m.modalParam = invalid
 end sub
 
+sub inAppUpdate1()
+    m.billing.unobserveField("catalog")
+    m.catalog = m.billing.catalog
+    for ii = 0 to m.catalog.getChildCount() - 1
+        item = m.catalog.getChild(ii)
+        if item.id = m.modalParam.path.actions.rf_settings_roku_product_id
+            print "inapp update: found product id"
+            m.updateItem = item
+            m.billing.ObserveField("purchases", "inAppUpdate2")
+            m.billing.command = "getPurchases"
+            return
+        end if
+    end for
+    m.top.result = m.modalResult
+    m.modalParam = invalid
+end sub
+
+sub inAppUpdate2()
+    m.billing.unobserveField("purchases")
+    m.purchased = m.billing.purchases
+    for ii = 0 to m.purchased.getChildCount() - 1
+        item = m.purchased.getChild(ii)
+        if item.id = m.modalParam.path.actions.rf_settings_roku_product_id
+            print "inapp update: already purchased"
+            m.top.result = m.modalResult
+            m.modalParam = invalid
+            return
+        end if
+    end for
+
+    orders = CreateObject("roSGNode", "ContentNode")
+    order = orders.createChild("ContentNode")
+    order.addFields({ "code": m.updateItem.id, "qty": 1 })
+    orders.action = m.modalParam.path.actions.rf_settings_roku_product_operation
+    m.billing.order = orders
+    m.billing.ObserveField("orderStatus", "inAppUpdate3")
+    m.billing.command = "doOrder"
+end sub
+
+sub inAppUpdate3()
+    m.billing.unobserveField("orderStatus")
+    m.modalResult.orderStatus = m.billing.orderStatus.status
+    m.top.result = m.modalResult
+    m.modalParam = invalid
+end sub
+
 sub onScreenChanged(params as object)
     if m.promotionEnabled = false
-        print "Rf: SDK disabled - " + params.screenName
+        print "Re: SDK disabled - " + params.screenName
         return
     end if
-    print "Rf: onScreenChanged - " + params.screenName
+    print "Re: onScreenChanged - " + params.screenName
     m.currentScreenName = params.screenName
     if m.actions = invalid
         m.top.lastError = m.allErrors.invalid_action
@@ -413,7 +480,7 @@ function isSuppressedByHoldout(path) as boolean
             if path.action_group_id <> invalid then actionGroupId = path.action_group_id
             m.holdout.callFunc("fireEvent", { event: "holdout", pathId: path.id, actionGroupId: actionGroupId })
         end if
-        print("Rf: promos " + path.id + " is blocked due to isSuppressedByHoldout")
+        print("Re: promos " + path.id + " is blocked due to isSuppressedByHoldout")
         return true
     end if
     return isPresented
@@ -446,11 +513,11 @@ end sub
 
 sub onDisplayModal()
     if not m.modalParamsDictionary.DoesExist(m.currentScreenName)
-        print "Rf: display modal aborted - screen obsolete"
+        print "Re: display modal aborted - screen obsolete"
         return
     end if
     m.modalParam = m.modalParamsDictionary.lookUp(m.currentScreenName)
-    print "Rf: display modal for " + m.currentScreenName + ", id=" + m.modalParam.path.id
+    print "Re: display modal for " + m.currentScreenName + ", id=" + m.modalParam.path.id
 
     if isSuppressedByHoldout(m.modalParam.path)
         m.top.result = { code: m.allResults.holdout }
@@ -474,12 +541,12 @@ sub onDisplayModal()
     pathTypes = PathType()
     if m.modalParam.path.path_type = pathTypes.modal or m.modalParam.path.path_type = pathTypes.interstitial or m.modalParam.path.path_type = pathTypes.bottomBanner
         if m.modalParam.path.actions.rf_retention_survey_selected = "true"
-            m.modal = createObject("roSGNode", "PromotionSurvey")
+            m.modal = createObject("roSGNode", "PromptSurvey")
         else
-            m.modal = createObject("roSGNode", "PromotionDialog")
+            m.modal = createObject("roSGNode", "PromptDialog")
         end if
     else
-        m.modal = createObject("roSGNode", "PromotionVideoDialog")
+        m.modal = createObject("roSGNode", "PromptVideoDialog")
     end if
     m.modal.fonts = m.fonts
     m.modal.observeField("result", "onModalDismissed")
@@ -523,9 +590,48 @@ function getInlines(params as object) as object
     return row
 end function
 
+sub getIapItems()
+    m.billing.ObserveField("catalog", "On_billing_catalog")
+    m.billing.command = "getCatalog"
+end sub
+
+sub getPuchasedItems()
+    m.billing.ObserveField("purchases", "On_get_purchased")
+    m.billing.command = "getPurchases"
+end sub
+
+sub On_get_purchased()
+    m.billing.unobserveField("purchases")
+    m.top.iapResult = m.billing.purchases
+end sub
+
+sub On_billing_catalog()
+    m.billing.unobserveField("catalog")
+    m.top.iapResult = m.billing.catalog
+end sub
+
+sub purchaseIap(params as object)
+    orders = CreateObject("roSGNode", "ContentNode")
+    order = orders.createChild("ContentNode")
+    order.addFields({ "code": params.sku, "qty": params.qty })
+    if params.action <> invalid
+        if "Upgrade" = params.action or "Downgrade" = params.action
+            orders.action = params.action
+        end if
+    end if
+    m.billing.order = orders
+    m.billing.ObserveField("orderStatus", "On_billing_purchaseResult")
+    m.billing.command = "doOrder"
+end sub
+
+sub On_billing_purchaseResult()
+    m.billing.unobserveField("orderStatus")
+    m.top.iapResult = m.billing.orderStatus
+end sub
+
 sub customTrack(params as object)
     if m.promotionEnabled = false
-        print "Rf: SDK disabled - customTrack"
+        print "Re: SDK disabled - customTrack"
         return
     end if
     track = callApi("")
@@ -581,7 +687,7 @@ function getMetas() as object
 end function
 
 function getVersion() as string
-    return "1.0.50"
+    return "2.0.0"
 end function
 
 function matchWildCharStrings(trigger as string, name as string) as boolean
@@ -838,7 +944,7 @@ function showInline(params as object) as object
     end if
     inlines = getInlines(params)
     if inlines.count() > 0
-        m.inline = createObject("roSGNode", "PromotionInline")
+        m.inline = createObject("roSGNode", "PromptInline")
         m.inline.fonts = m.fonts
         m.inlineParam = {
             appId: m.appId,

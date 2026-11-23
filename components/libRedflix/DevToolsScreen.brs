@@ -1,5 +1,5 @@
 ' Full-screen devtools panel for the Redflix demo channel, mirroring the
-' debug menus already added to the Apple and React Native Redfast SDKs:
+' debug menus already added to the Apple and React Native Recurly Engage SDKs:
 '   - SDK config (appId/userId/environment overrides, save & restart)
 '   - list + fire configured prompts
 '   - inline zone preview

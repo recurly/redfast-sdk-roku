@@ -1,7 +1,7 @@
-' Copyright (C) 2020 Redfast Inc - All Rights Reserved
+' Copyright (C) 2020 Recurly, Inc - All Rights Reserved
 '
 ' Must not be copied and/or distributed without the express
-' permission of Redfast Inc
+' permission of Recurly, Inc
 
 sub init()
     m.BEARER = "Bearer c405ed357f5046964ad69f1b5f45df7da5a03913af05cf685612a724bd5e48ed"

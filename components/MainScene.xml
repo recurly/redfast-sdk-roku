@@ -5,9 +5,9 @@
     <script type="text/brightscript" uri="pkg:/components/libRedflix/DevSettings.brs" />
 
     <children>
-    	<PromotionManager id="promoMgr">
+    	<PromptManager id="promoMgr">
     		<Node id="appDeeplinkNode"/>
-    	</PromotionManager>
+    	</PromptManager>
 		<Group id="sceneStack" />
 	</children>
 </component>

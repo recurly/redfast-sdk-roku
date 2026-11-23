@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component name="PromotionSurvey" extends="Group"
+<component name="PromptSurvey" extends="Group"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
 
 	<script type="text/brightscript"
-		uri="PromotionSurvey.brs" />
+		uri="PromptSurvey.brs" />
 	<script type="text/brightscript"
 		uri="consts.brs" />
 	<script type="text/brightscript"

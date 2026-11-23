@@ -1,7 +1,7 @@
-' Copyright (C) 2020 Redfast Inc - All Rights Reserved
+' Copyright (C) 2020 Recurly, Inc - All Rights Reserved
 '
 ' Must not be copied and/or distributed without the express
-' permission of Redfast Inc
+' permission of Recurly, Inc
  
 sub init()
     m.viewRoot = m.top.findNode("root")
