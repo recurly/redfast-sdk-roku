@@ -1,7 +1,7 @@
-' Copyright (C) 2023 Redfast Inc - All Rights Reserved
+' Copyright (C) 2023 Recurly, Inc - All Rights Reserved
 '
 ' Must not be copied and/or distributed without the express
-' permission of Redfast Inc
+' permission of Recurly, Inc
 
 sub init()
     m.backgroundColor = m.top.findNode("background")
@@ -13,7 +13,7 @@ sub init()
 end sub
 
 function callApi(params)
-    action = createObject("RoSGNode", "PromotionApi")
+    action = createObject("RoSGNode", "PromptApi")
     action.appId = m.appId
     action.userId = m.userId
     action.deviceType = m.deviceType
@@ -54,7 +54,7 @@ function onKeyEvent(key as string, pressed as boolean) as boolean
     if key = "OK" and pressed
         if m.currentPath.actions.rf_settings_tile_interaction <> "none"
             track = callApi({ event: "goal", pathId: m.currentPath.id, actionGroupId: m.currentPath.action_group_id })
-            allResults = PromotionResult()
+            allResults = PromptResult()
             m.top.result = preparePromptResult({
                 code: allResults.button1,
                 meta: m.currentPath.actions.rf_metadata,

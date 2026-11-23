@@ -4,7 +4,7 @@
 	xsi:schemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
 
 	<script type="text/brightscript"
-		uri="PromotionManager.brs" />
+		uri="PromptManager.brs" />
 	<script type="text/brightscript"
 		uri="consts.brs" />
 	<script type="text/brightscript"

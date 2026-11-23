@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="PromptManager" extends="Group"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
+
+	<script type="text/brightscript"
+		uri="PromptManager.brs" />
+	<script type="text/brightscript"
+		uri="consts.brs" />
+	<script type="text/brightscript"
+		uri="LocalStorage.brs" />
+
+	<interface>
+		<field id="isProd" type="bool" />
+		<field id="result" type="assocarray" />
+		<field id="iapResult" type="node" />
+		<field id="font" type="node" />
+		<field id="lastError" type="string" />
+		<function name="initPrompt" />
+		<function name="enablePrompt" />
+		<function name="setPrivacyConsentCategories" />
+		<function name="getPrivacyConsentCategories" />
+		<function name="setUserId" />
+		<function name="setAnonymousUserId" />
+		<function name="getUserId" />
+		<function name="getAppId" />
+		<function name="getEnvironment" />
+		<function name="applyOverrides" />
+		<function name="onScreenChanged" />
+		<function name="onButtonClicked" />
+		<function name="onInlineClicked" />
+		<function name="onInlineDismissed" />
+		<function name="onInlineViewed" />
+		<function name="getInlines" />
+		<function name="getIapItems" />
+		<function name="getPuchasedItems" />
+		<function name="purchaseIap" />
+		<function name="customTrack" />
+		<function name="resetGoal" />
+		<function name="getMetas" />
+		<function name="ping" />
+		<function name="getVersion" />
+		<function name="getPrompt" />
+		<function name="getPrompts" />
+		<function name="getTriggerablePrompts" />
+		<function name="sendPromptEvent" />
+		<function name="showPrompt" />
+		<function name="showInline" />
+	</interface>
+
+	<children>
+    	<ChannelStore id="billing"/>
+	</children>
+</component>

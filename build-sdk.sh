@@ -19,16 +19,17 @@ rm -rf tmp
 mkdir -p tmp
 
 # Copy common files
-rsync -R components/redfast/PromotionDialog.brs components/redfast/CtaButton.xml components/redfast/CtaButton.brs components/redfast/PromotionDialog.xml components/redfast/consts.brs components/redfast/PromotionApi.brs components/redfast/PromotionApi.xml components/redfast/LocalStorage.brs components/redfast/PromotionVideoDialog.brs components/redfast/PromotionVideoDialog.xml components/redfast/PromotionInline.* tmp/
+rsync -R components/engage/PromptDialog.brs components/engage/CtaButton.xml components/engage/CtaButton.brs components/engage/PromptDialog.xml components/engage/consts.brs components/engage/PromptApi.brs components/engage/PromptApi.xml components/engage/LocalStorage.brs components/engage/PromptVideoDialog.brs components/engage/PromptVideoDialog.xml components/engage/PromptInline.* tmp/
 
 # Copy IAP or NO IAP files
-# components/redfast/PromotionManager.xml components/redfast/PromotionManager.brs
+# components/engage/PromptManager.xml components/engage/PromptManager.brs
 if [ "$IAP" = true ]
 then
-  rsync -R components/redfast/PromotionManager.xml components/redfast/PromotionManager.brs tmp/
+  rsync -R components/engage/PromptManager.xml components/engage/PromptManager.brs components/engage/PromotionManager.xml tmp/
 else
-  cp components/redfast/PromotionManager.xml.NOIAP tmp/components/redfast/PromotionManager.xml
-  cp components/redfast/PromotionManager.brs.NOIAP tmp/components/redfast/PromotionManager.brs
+  cp components/engage/PromptManager.xml.NOIAP tmp/components/engage/PromptManager.xml
+  cp components/engage/PromptManager.brs.NOIAP tmp/components/engage/PromptManager.brs
+  cp components/engage/PromotionManager.xml.NOIAP tmp/components/engage/PromotionManager.xml
 fi
 
 cd tmp

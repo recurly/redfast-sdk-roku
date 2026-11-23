@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component name="PromotionVideoDialog" extends="Group" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
+<component name="PromptVideoDialog" extends="Group" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
 
 	<script type="text/brightscript" 
-		uri="PromotionVideoDialog.brs" />
+		uri="PromptVideoDialog.brs" />
 	<script type="text/brightscript"
 		uri="consts.brs" />
 	<script type="text/brightscript"

@@ -1,9 +1,9 @@
-# Redfast SDK for Roku
+# Recurly Engage SDK for Roku
 
 Roku SceneGraph SDK for displaying promotional prompts (modals, video dialogs, inline banners) in BrightScript/Roku channels.
 
 This repo contains two distinct pieces:
-- **The SDK** — `components/redfast/` — the distributable Redfast promotion library.
+- **The SDK** — `components/engage/` — the distributable Recurly Engage prompt library.
 - **The demo app** — everything else (`source/`, `components/MainScene`, `components/libRedflix/`) — a Netflix-like Roku channel that exercises the SDK.
 
 ## Language & Framework
@@ -22,9 +22,9 @@ This repo contains two distinct pieces:
 Entry point. Creates `roSGScreen`, instantiates `MainScene`, runs the main event loop.
 
 ### components/MainScene (.brs/.xml)
-Root scene (extends `Scene`). Declares `PromotionManager` (id=`promoMgr`) and a `sceneStack` Group as children. On `init`, calls `initPromotion` with appId/userId/fonts, then observes `result` — once the SDK signals initialized, appends `RedflixMain` into `sceneStack`.
+Root scene (extends `Scene`). Declares `PromptManager` (id=`promoMgr`) and a `sceneStack` Group as children. On `init`, calls `initPrompt` with appId/userId/fonts, then observes `result` — once the SDK signals initialized, appends `RedflixMain` into `sceneStack`.
 
-This is the **integration point**: the scene owns `PromotionManager` so all child components can find it via `GetScene().findNode("promoMgr")`.
+This is the **integration point**: the scene owns `PromptManager` so all child components can find it via `GetScene().findNode("promoMgr")`.
 
 ### components/libRedflix/
 The active demo UI — a fake streaming service called "Redflix".
@@ -33,7 +33,7 @@ The active demo UI — a fake streaming service called "Redflix".
   - *Home* — item select triggers `onButtonClicked` (interstitial) and `purchaseIap` on the first row.
   - *Latest* — calls `getPrompt` by pathId then `showPrompt`.
   - *Genres* — calls `onScreenChanged` then `onButtonClicked` (wizard).
-  - Handles `result` field from `PromotionManager` to react to prompt outcomes (including IAP).
+  - Handles `result` field from `PromptManager` to react to prompt outcomes (including IAP).
 - **RowDetailItem.brs/.xml** — Custom RowList item for the movie detail view. Shows either a movie metadata layout (poster + title/description/duration/director) or a full-width poster image.
 
 ### components/libContent/
@@ -44,12 +44,12 @@ Background `Task` nodes for fetching content (run on separate threads).
 
 ---
 
-## SDK — components/redfast/
+## SDK — components/engage/
 
 ### Core
 
-- **PromotionManager.brs/.xml** — Central SDK controller (extends `Group`). Manages the full promotion lifecycle:
-  - `initPromotion(params)` — Initializes with appId, userId, anonymousUserId, fonts, deviceType.
+- **PromptManager.brs/.xml** — Central SDK controller (extends `Group`). Manages the full promotion lifecycle:
+  - `initPrompt(params)` — Initializes with appId, userId, anonymousUserId, fonts, deviceType.
   - Ping loop (`updatePing`) — Periodic server pings to fetch promotion paths/configs with ETag caching and exponential backoff.
   - `onScreenChanged(params)` — Trigger-based prompt display on screen navigation.
   - `onButtonClicked(params)` — Trigger-based prompt display on button click events.
@@ -59,9 +59,9 @@ Background `Task` nodes for fetching content (run on separate threads).
   - IAP integration via `ChannelStore` node: `getIapItems`, `purchaseIap`, `getPuchasedItems`.
   - `customTrack`, `ping`, `setUserId`, `setAnonymousUserId`, `resetGoal`, `getMetas`, `getVersion`.
   - `setPrivacyConsentCategories(params)` / `getPrivacyConsentCategories()` — gates prompt eligibility by `PrivacyConsentCategory` (`consts.brs`); a path only matches once its `consent_categories` are an exact set match to the configured categories. Checked in `getPath`, `getInlines`, and `getPrompts`.
-  - Has a `.NOIAP` variant (`PromotionManager.brs.NOIAP` / `.xml.NOIAP`) that strips IAP/billing support.
+  - Has a `.NOIAP` variant (`PromptManager.brs.NOIAP` / `.xml.NOIAP`) that strips IAP/billing support.
 
-- **PromotionApi.brs/.xml** — Network layer (extends `Task` for background threading). `fireEvent(params)` sends HTTP requests to `conduit.redfast.com` for events: ping, impression, dismiss, goal, click, customTrack, resetGoal, holdout. Returns parsed JSON via `content` field.
+- **PromptApi.brs/.xml** — Network layer (extends `Task` for background threading). `fireEvent(params)` sends HTTP requests to `conduit.redfast.com` for events: ping, impression, dismiss, goal, click, customTrack, resetGoal, holdout. Returns parsed JSON via `content` field.
 
 - **consts.brs** — Shared constants and utilities:
   - `PromotionResult()` — Result/interaction codes (ok, error, button1-3, dismissed, timerExpired, holdout, etc.).
@@ -71,7 +71,7 @@ Background `Task` nodes for fetching content (run on separate threads).
   - `parseKeyValuePair()`, `pxToInteger()`, `pxToFloat()` — Utility functions.
   - `preparePromptResult()` — Enriches result objects with prompt metadata.
 
-- **LocalStorage.brs** — Suppression/cooldown persistence using `roRegistrySection("Redfast")`. Tracks overlay display intervals (time-based, visit-based, infinite) and holdout keys.
+- **LocalStorage.brs** — Suppression/cooldown persistence using `roRegistrySection("RecurlyEngage")`. Tracks overlay display intervals (time-based, visit-based, infinite) and holdout keys.
 
 ### UI Components
 
@@ -89,7 +89,7 @@ Background `Task` nodes for fetching content (run on separate threads).
 
 ## Build
 
-- `build-sdk.sh [iap|noiap]` — Packages `components/redfast/` into `roku-sdk.zip`. Picks IAP or NOIAP variant of PromotionManager.
+- `build-sdk.sh [iap|noiap]` — Packages `components/engage/` into `roku-sdk.zip`. Picks IAP or NOIAP variant of PromptManager.
 - `build-demo.sh` — Packages the full demo app into `roku-demo.zip`.
 
 ---
@@ -98,6 +98,6 @@ Background `Task` nodes for fetching content (run on separate threads).
 
 - All SDK components include `consts.brs` and `LocalStorage.brs` via `<script>` tags (BrightScript has no module imports — scripts are concatenated per component scope).
 - Async HTTP via `Task` nodes: create a `PromotionApi` node, call `fireEvent()`, observe `state` or `content` for results.
-- Prompt display flow: `PromotionManager` creates a dialog node, appends it to a root Group, observes `result` field for dismiss/accept callbacks, then removes the child.
-- Demo components reach the SDK via `m.top.GetScene().findNode("promoMgr")` — the `PromotionManager` lives on `MainScene` and is found by id.
-- Version is hardcoded in `PromotionManager.brs:getVersion()` (currently `"1.0.44"`).
+- Prompt display flow: `PromptManager` creates a dialog node, appends it to a root Group, observes `result` field for dismiss/accept callbacks, then removes the child.
+- Demo components reach the SDK via `m.top.GetScene().findNode("promoMgr")` — the `PromptManager` lives on `MainScene` and is found by id.
+- Version is hardcoded in `PromptManager.brs:getVersion()` (currently `"2.0.0"`).

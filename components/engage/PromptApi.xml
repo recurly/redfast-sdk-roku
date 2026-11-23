@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component name="PromotionApi" extends="Task" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
+<component name="PromptApi" extends="Task" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
 
-	<script type="text/brightscript" uri="PromotionApi.brs" />
+	<script type="text/brightscript" uri="PromptApi.brs" />
 	
 	<interface>
 		<field id="content" type="assocarray" alwaysNotify="true"/>

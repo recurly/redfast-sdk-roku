@@ -1,6 +1,6 @@
 # Dev Tools — Roku
 
-> **INTERNAL — DO NOT PUBLISH.** Engineering-only documentation for the Redflix demo channel. Dev Tools is not part of the distributable SDK (`components/redfast/`) and must never appear on the public docs site.
+> **INTERNAL — DO NOT PUBLISH.** Engineering-only documentation for the Redflix demo channel. Dev Tools is not part of the distributable SDK (`components/engage/`) and must never appear on the public docs site.
 
 ---
 
@@ -68,9 +68,9 @@ The green **status label** at the bottom reports every action (and mirrors it to
 
 ## Persistence & restart
 
-**Persistence:** `roRegistrySection("RedflixDevTools")` via `DevSettings.brs` — `LoadDevSettings` / `SaveDevSettings` (with `Flush()`), keys `appIdOverride`, `userIdOverride`, `environment` (default `production`). This section is deliberately **separate from the SDK's own `Redfast` registry section**, so dev-tools state never mixes with suppression/cooldown/holdout data. `EffectiveAppId` / `EffectiveUserId` implement the trim-and-fall-back-to-default logic.
+**Persistence:** `roRegistrySection("RedflixDevTools")` via `DevSettings.brs` — `LoadDevSettings` / `SaveDevSettings` (with `Flush()`), keys `appIdOverride`, `userIdOverride`, `environment` (default `production`). This section is deliberately **separate from the SDK's own legacy `Redfast` → `RecurlyEngage` registry section (auto-migrated)**, so dev-tools state never mixes with suppression/cooldown/holdout data. `EffectiveAppId` / `EffectiveUserId` implement the trim-and-fall-back-to-default logic.
 
-**Applied at launch:** `MainScene.init` loads these settings and passes the effective `appId`, `userId` and `environment` to `initPromotion`, so saved overrides survive a channel relaunch.
+**Applied at launch:** `MainScene.init` loads these settings and passes the effective `appId`, `userId` and `environment` to `initPrompt`, so saved overrides survive a channel relaunch.
 
 **Restart semantics:** **Save and restart** / **Clear overrides** call `promoMgr.applyOverrides({ appId, userId, environment })`. The SDK clears the cached actions, sets `initialPing = true`, and re-pings immediately — a hot SDK restart with the new config. No channel relaunch is needed.
 
@@ -78,12 +78,12 @@ The green **status label** at the bottom reports every action (and mirrors it to
 
 ## SDK changes
 
-Outside the demo app, the SDK carries the hooks Dev Tools relies on (in both `PromotionManager.brs` and `PromotionManager.brs.NOIAP`, with matching `<function>` entries in both XML variants):
+Outside the demo app, the SDK carries the hooks Dev Tools relies on (in both `PromptManager.brs` and `PromptManager.brs.NOIAP`, with matching `<function>` entries in both XML variants):
 
 - `applyOverrides(params)` — applies any of `appId` / `userId` / `environment` (empty or missing values are ignored), resets `actions` and `initialPing`, and calls `updatePing()`
 - `getEnvironment()` — returns the current environment
-- `initPromotion` accepts an optional `environment` param (default `"production"`)
-- `PromotionApi` has an `environment` field; `"staging"` selects the staging base URL, otherwise production. The URL lives only in `PromotionApi.brs`
+- `initPrompt` accepts an optional `environment` param (default `"production"`)
+- `PromptApi` has an `environment` field; `"staging"` selects the staging base URL, otherwise production. The URL lives only in `PromptApi.brs`
 
 The panel also reuses the SDK's `CtaButton` and `consts.brs` (`PathType`).
 
@@ -97,11 +97,11 @@ The panel also reuses the SDK's `CtaButton` and `consts.brs` (`PathType`).
 | `components/libRedflix/DevToolsScreen.xml` | Component tree (rows, headers, status label, `closed` interface field, `promptRenderRoot`) |
 | `components/libRedflix/DevSettings.brs` | Registry persistence (`RedflixDevTools` section) + default/effective helpers |
 | `components/libRedflix/RedflixMain.brs` | Options-key entry point (`openDevTools` / `onDevToolsClosed`) |
-| `components/MainScene.brs` / `.xml` | Loads saved settings at launch and passes them to `initPromotion` |
-| `components/redfast/PromotionManager.brs` (+ `.NOIAP`, XML) | `applyOverrides`, `getEnvironment`, `environment` init param |
-| `components/redfast/PromotionApi.brs` / `.xml` | `environment` field selects API base URL |
+| `components/MainScene.brs` / `.xml` | Loads saved settings at launch and passes them to `initPrompt` |
+| `components/engage/PromptManager.brs` (+ `.NOIAP`, XML) | `applyOverrides`, `getEnvironment`, `environment` init param |
+| `components/engage/PromptApi.brs` / `.xml` | `environment` field selects API base URL |
 
-SDK APIs exercised (via `callFunc` on `PromotionManager`): `getPrompts`, `getPrompt`, `showPrompt`, `showInline`, `onScreenChanged`, `onButtonClicked`, `applyOverrides`, `result` field. See [`api.md`](./api.md).
+SDK APIs exercised (via `callFunc` on `PromptManager`): `getPrompts`, `getPrompt`, `showPrompt`, `showInline`, `onScreenChanged`, `onButtonClicked`, `applyOverrides`, `result` field. See [`api.md`](./api.md).
 
 ---
 

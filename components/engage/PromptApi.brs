@@ -1,7 +1,7 @@
-' Copyright (C) 2023 Redfast Inc - All Rights Reserved
+' Copyright (C) 2023 Recurly, Inc - All Rights Reserved
 '
 ' Must not be copied and/or distributed without the express
-' permission of Redfast Inc
+' permission of Recurly, Inc
 
 sub init()
     m.ApiBaseUrl = "https://conduit.redfastlabs.com/"
@@ -103,7 +103,7 @@ sub fireEventImpl()
         if type(result) = "roUrlEvent"
             statusCode = result.GetResponseCode()
             if event <> "ping" and event <> "holdout"
-                print "Rf: " + event + " -> " + statusCode.toStr()
+                print "Re: " + event + " -> " + statusCode.toStr()
             end if
             if event = "ping" or event = "holdout"
                 if statusCode = 200
@@ -128,7 +128,7 @@ sub fireEventImpl()
                 end if
             end if
         else
-            print "Rf: " + event + " no response within " + waitingTime.toStr() + "ms"
+            print "Re: " + event + " no response within " + waitingTime.toStr() + "ms"
             connection.AsyncCancel()
         end if
     else
