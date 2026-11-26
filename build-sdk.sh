@@ -19,7 +19,7 @@ rm -rf tmp
 mkdir -p tmp
 
 # Copy common files
-rsync -R components/redfast/PromotionDialog.brs components/redfast/CtaButton.xml components/redfast/CtaButton.brs components/redfast/PromotionDialog.xml components/redfast/consts.brs components/redfast/PromotionApi.brs components/redfast/PromotionApi.xml components/redfast/LocalStorage.brs components/redfast/PromotionVideoDialog.brs components/redfast/PromotionVideoDialog.xml components/redfast/PromotionInline.* tmp/
+rsync -R components/redfast/PromotionDialog.brs components/redfast/CtaButton.xml components/redfast/CtaButton.brs components/redfast/PromotionDialog.xml components/redfast/consts.brs components/redfast/PromotionApi.brs components/redfast/PromotionApi.xml components/redfast/LocalStorage.brs components/redfast/PromotionVideoDialog.brs components/redfast/PromotionVideoDialog.xml components/redfast/PromotionInline.* components/redfast/PromotionSurvey.* tmp/
 
 # Copy IAP or NO IAP files
 # components/redfast/PromotionManager.xml components/redfast/PromotionManager.brs

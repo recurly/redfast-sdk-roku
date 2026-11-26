@@ -1,0 +1,96 @@
+name: Roku
+
+# Checks the channel and SDK sources compile, then packages the Redflix demo channel and the two
+# SDK flavors as workflow artifacts. Roku has no TestFlight-style distribution, so the artifact is a
+# sideload zip (the Roku equivalent of the Apple repo's TestFlight workflow and the Android
+# Demo APK workflow).
+#
+# Notes for testers:
+# - Downloading an artifact requires a GitHub login, and it arrives wrapped in a .zip: unwrap it to
+#   get roku-demo.zip, which is what the Roku accepts.
+# - Install: enable developer mode on the Roku (Home x3, Up x2, Right, Left, Right, Left, Right),
+#   open http://<roku-ip> in a browser, log in with the developer password, and upload roku-demo.zip.
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: roku-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # Pinned so a new compiler release cannot start failing the build on its own.
+  BRIGHTERSCRIPT_VERSION: 0.73.8
+
+jobs:
+  build:
+    name: Check and package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Catches syntax errors, missing component scripts and unresolved callbacks, which on a
+      # real Roku only show up when the channel crashes at load.
+      - name: Compile check (BrighterScript)
+        run: npx --yes brighterscript@${BRIGHTERSCRIPT_VERSION} --project bsconfig.ci.json
+
+      - name: Build demo channel
+        run: ./build-demo.sh out/roku-demo.zip
+
+      - name: Build SDK packages
+        run: |
+          set -euo pipefail
+          for flavor in iap noiap; do
+            ./build-sdk.sh "$flavor"
+            mv roku-sdk.zip "out/roku-sdk-$flavor.zip"
+            ./scripts/verify-sdk-zip.sh "out/roku-sdk-$flavor.zip"
+          done
+
+      - name: Job summary
+        run: |
+          VERSION=$(grep -E '^(major|minor|build)_version=' manifest | cut -d= -f2 | paste -sd. -)
+          {
+            echo "### Roku packages (manifest version $VERSION)"
+            echo
+            echo "| Artifact | Contents |"
+            echo "|---|---|"
+            echo "| \`redflix-demo-roku\` | \`roku-demo.zip\`: sideload the Redflix demo channel |"
+            echo "| \`redfast-sdk-roku-iap\` | \`roku-sdk-iap.zip\`: SDK with IAP support |"
+            echo "| \`redfast-sdk-roku-noiap\` | \`roku-sdk-noiap.zip\`: SDK without IAP |"
+            echo
+            echo "Install the demo: enable developer mode on the Roku, open \`http://<roku-ip>\`, upload \`roku-demo.zip\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload demo channel
+        uses: actions/upload-artifact@v4
+        with:
+          name: redflix-demo-roku
+          path: out/roku-demo.zip
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload SDK (IAP)
+        uses: actions/upload-artifact@v4
+        with:
+          name: redfast-sdk-roku-iap
+          path: out/roku-sdk-iap.zip
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload SDK (no IAP)
+        uses: actions/upload-artifact@v4
+        with:
+          name: redfast-sdk-roku-noiap
+          path: out/roku-sdk-noiap.zip
+          if-no-files-found: error
+          retention-days: 90
