@@ -89,8 +89,13 @@ Background `Task` nodes for fetching content (run on separate threads).
 
 ## Build
 
-- `build-sdk.sh [iap|noiap]` — Packages `components/redfast/` into `roku-sdk.zip`. Picks IAP or NOIAP variant of PromotionManager.
-- `build-demo.sh` — Packages the full demo app into `roku-demo.zip`.
+- `build-sdk.sh [iap|noiap]` — Packages `components/redfast/` into `roku-sdk.zip`. Picks IAP or NOIAP variant of PromotionManager. It copies an explicit file list, so a new SDK component must be added there; `scripts/verify-sdk-zip.sh <zip>` fails if a component is missing.
+- `build-demo.sh [output.zip]` — Packages the full demo app as a sideload zip (default `out/roku-demo.zip`).
+- `npx brighterscript --project bsconfig.ci.json` — Compile check (syntax errors, missing component scripts, unresolved callbacks). Run by CI.
+
+### CI (`.github/workflows/roku.yml`)
+
+On every PR to `master`, push to `master` and manual dispatch: compile check, then builds the demo zip and both SDK zips and uploads them as artifacts (`redflix-demo-roku`, `redfast-sdk-roku-iap`, `redfast-sdk-roku-noiap`). To install the demo, enable developer mode on the Roku, open `http://<roku-ip>` and upload `roku-demo.zip` (artifacts download wrapped in an extra .zip).
 
 ---
 
